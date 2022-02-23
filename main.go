@@ -7,7 +7,7 @@ import (
 
 var dbCon *DBModel
 
-//跨域
+//跨域中间件
 func cros(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
@@ -18,18 +18,24 @@ func cros(f http.HandlerFunc) http.HandlerFunc {
 }
 
 func registerMethod(w http.ResponseWriter, r *http.Request) {
-	// 往w里写入内容，就会在浏览器里输出
-	name := r.URL.Query().Get("name")
-	account := r.URL.Query().Get("account")
-	password := r.URL.Query().Get("password")
-	if name == "" || account == "" || password == "" {
-		fmt.Println("账号信息输入不正确")
+	//POST 请求验证
+	if r.Method == "POST" {
+		name := r.PostFormValue("name")
+		account := r.PostFormValue("account")
+		password := r.PostFormValue("password")
+		if name == "" || account == "" || password == "" {
+			fmt.Println("账号信息输入不正确")
+			return
+		}
+		fmt.Fprintf(w, dbCon.InsertUserAccount(name, account, password))
+	} else {
+		fmt.Fprintf(w, "请求失败")
 		return
 	}
-	fmt.Fprintf(w, dbCon.InsertUserAccount(name, account, password))
 }
 
 func checkMethod(w http.ResponseWriter, r *http.Request) {
+	//POST 请求验证
 	if r.Method == "POST" {
 		account := r.PostFormValue("account")
 		password := r.PostFormValue("password")
@@ -42,7 +48,6 @@ func checkMethod(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "请求失败")
 		return
 	}
-
 }
 
 func main() {

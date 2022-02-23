@@ -74,6 +74,7 @@ func (d *DBModel) SelectUserAccount(account string, password string) string {
 		return string([]byte(`{"state": "error", "data": "","message":"数据库查询错误"}`))
 	} else {
 		fmt.Println("用户查询成功 用户ID：", user.Id)
+		//jsonencode
 		b, err := json.Marshal(&user)
 		if err != nil {
 			fmt.Println(err)
