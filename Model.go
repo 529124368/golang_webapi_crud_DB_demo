@@ -51,17 +51,25 @@ func NewDBCon(id string, port string, password string, url string) *DBModel {
 
 //插入数据库
 func (d *DBModel) InsertUserAccount(name string, account string, password string) string {
-	str_time := time.Now().Format("2006-01-02")
-
-	sqlStrs := "insert into user_account(name,account,password,Register_time) values(?,?,?,?)"
-	_, err := d.Con.Exec(sqlStrs, name, account, password, str_time)
-	if err != nil {
-		fmt.Println("数据库插入错误：", err)
-		return string([]byte(`{"state": "error", "data": "","message":"注册失败"}`))
+	var nums int
+	sqlstr01 := "select count(1) from user_account where account=? and password=?"
+	d.Con.Get(&nums, sqlstr01, account, password)
+	if nums == 0 {
+		str_time := time.Now().Format("2006-01-02")
+		sqlStrs := "insert into user_account(name,account,password,Register_time) values(?,?,?,?)"
+		_, err := d.Con.Exec(sqlStrs, name, account, password, str_time)
+		if err != nil {
+			fmt.Println("数据库插入错误：", err)
+			return string([]byte(`{"state": "error", "data": "","message":"注册失败"}`))
+		} else {
+			fmt.Println("用户注册成功")
+			return string([]byte(`{"state": "ok", "data": "","message":"注册成功"}`))
+		}
 	} else {
-		fmt.Println("用户注册成功")
-		return string([]byte(`{"state": "ok", "data": "","message":"注册成功"}`))
+		fmt.Println("数据库插入错误：重复信息存在")
+		return string([]byte(`{"state": "error", "data": "","message":"注册失败"}`))
 	}
+
 }
 
 //查询数据库

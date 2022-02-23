@@ -51,6 +51,7 @@ func checkMethod(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	fmt.Println("服务器启动")
 	dbCon = NewDBCon("root", "3306", "root00", "127.0.0.1")
 	defer dbCon.close()
 	dbCon.start()
@@ -60,4 +61,5 @@ func main() {
 
 	// 启动web服务，监听8080端口
 	http.ListenAndServe(":8081", nil)
+
 }
